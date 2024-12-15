@@ -11,49 +11,49 @@
 			<input type="checkbox" id="btn" name="btn" />
 		</div>
 		<div> DONG MO CUA 
-			<input type="checkbox" id="led" name="led" disabled="true" />
+			<input type="button" id="door" name="door" disabled="true" />
 		</div>
 		<script type="text/javascript">
             var button = document.getElementById('btn');
-            var led = document.getElementById('led');
-            var url = window.location.host; // hàm trả về url của trang hiện tại kèm theo port
+            var door = document.getElementById('door');
+            var url = window.location.host; 
 
-            // Chuyển WebSocket thành wss:// khi sử dụng HTTPS trên Railway
-            var ws = new WebSocket('wss://' + url + '/'); // Đảm bảo sử dụng wss:// cho kết nối bảo mật
+
+            var ws = new WebSocket('wss://' + url + '/'); 
             console.log('connecting...');
 
-            ws.onopen = function() // Khi websocket được mở thì hàm này sẽ được thực hiện
+            ws.onopen = function() 
             {
                 document.getElementById('status').innerHTML = 'Connected';
-                led.disabled = false; // Khi websocket được mở, mới cho phép
+                door.disabled = false; 
                 console.log('connected...');
             };
 
-            ws.onmessage = function(evt) // Sự kiện xảy ra khi client nhận dữ liệu từ server
+            ws.onmessage = function(evt)
             {
                 console.log(evt.data);
                 if (evt.data == 'BTN_PRESSED') {
                     button.checked = true;
                 } else if (evt.data == 'BTN_RELEASE') {
                     button.checked = false;
-                } else if (evt.data == 'LED_OFF') {
-                    led.checked = false;
-                } else if (evt.data == 'LED_ON') {
-                    led.checked = true;
+                } else if (evt.data == 'door_OFF') {
+                    door.checked = false;
+                } else if (evt.data == 'door_ON') {
+                    door.checked = true;
                 }
             };
 
             ws.onclose = function() { // Hàm này sẽ được thực hiện khi đóng websocket
-                led.disabled = true;
+                door.disabled = true;
                 document.getElementById('status').innerHTML = 'Disconnected';
             };
 
-            led.onchange = function() { // Thực hiện thay đổi bật/tắt led
-                var led_status = 'LED_OFF';
-                if (led.checked) {
-                    led_status = 'LED_ON';
+            door.onchange = function() { // Thực hiện thay đổi bật/tắt door
+                var door_status = 'door_OFF';
+                if (door.checked) {
+                    door_status = 'door_ON';
                 }
-                ws.send(led_status); // Gửi trạng thái LED tới server
+                ws.send(door_status); // Gửi trạng thái door tới server
             };
         </script>
 	</body>
