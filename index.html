@@ -17,17 +17,21 @@
             var button = document.getElementById('btn');
             var led = document.getElementById('led');
             var url = window.location.host; // hàm trả về url của trang hiện tại kèm theo port
-            var ws = new WebSocket('ws://' + url + '/ws'); // mở 1 websocket với port 8000
-            console.log('connecting...')
-            ws.onopen = function() //khi websocket được mở thì hàm này sẽ được thưc hiện
+
+            // Chuyển WebSocket thành wss:// khi sử dụng HTTPS trên Railway
+            var ws = new WebSocket('wss://' + url + '/'); // Đảm bảo sử dụng wss:// cho kết nối bảo mật
+            console.log('connecting...');
+
+            ws.onopen = function() // Khi websocket được mở thì hàm này sẽ được thực hiện
             {
                 document.getElementById('status').innerHTML = 'Connected';
-                led.disabled = false; //khi websocket được mở, mới cho phép
-                console.log('connected...')
+                led.disabled = false; // Khi websocket được mở, mới cho phép
+                console.log('connected...');
             };
-            ws.onmessage = function(evt) // sự kiện xảy ra khi client nhận dữ liệu từ server
+
+            ws.onmessage = function(evt) // Sự kiện xảy ra khi client nhận dữ liệu từ server
             {
-                console.log(evt.data)
+                console.log(evt.data);
                 if (evt.data == 'BTN_PRESSED') {
                     button.checked = true;
                 } else if (evt.data == 'BTN_RELEASE') {
@@ -38,17 +42,19 @@
                     led.checked = true;
                 }
             };
-            ws.onclose = function() { // hàm này sẽ được thực hiện khi đóng websocket
+
+            ws.onclose = function() { // Hàm này sẽ được thực hiện khi đóng websocket
                 led.disabled = true;
-                document.getElementById('status').innerHTML = 'Connected';
+                document.getElementById('status').innerHTML = 'Disconnected';
             };
-            led.onchange = function() { // thực hiện thay đổi bật/tắt led
+
+            led.onchange = function() { // Thực hiện thay đổi bật/tắt led
                 var led_status = 'LED_OFF';
                 if (led.checked) {
                     led_status = 'LED_ON';
                 }
-                ws.send(led_status)
-            }
-            </script>
+                ws.send(led_status); // Gửi trạng thái LED tới server
+            };
+        </script>
 	</body>
 </html>
