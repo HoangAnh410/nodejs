@@ -11,10 +11,10 @@
 			<input type="checkbox" id="btn" name="btn" />
 		</div>
 		<div> DONG MO CUA 
-			<input type="button" id="door" name="door" disabled="true" />
+			<input type="checkbox" id="door" name="door" disabled="true" />
 		</div>
 		<script type="text/javascript">
-            var button = document.getElementById('btn');
+            var checkbox = document.getElementById('btn');
             var door = document.getElementById('door');
             var url = window.location.host; 
 
@@ -33,9 +33,9 @@
             {
                 console.log(evt.data);
                 if (evt.data == 'BTN_PRESSED') {
-                    button.checked = true;
+                    checkbox.checked = true;
                 } else if (evt.data == 'BTN_RELEASE') {
-                    button.checked = false;
+                    checkbox.checked = false;
                 } else if (evt.data == 'door_OFF') {
                     door.checked = false;
                 } else if (evt.data == 'door_ON') {
