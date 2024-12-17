@@ -6,9 +6,9 @@ var mysql = require('mysql2');
 
 // Kết nối đến MySQL
 var db = mysql.createConnection({
-    host: 'junction.proxy.rlwy.net:25046',   // Thay bằng host của Railway
-    user: 'uroot',       // Username MySQL
-    password: 'pzpjJkyXxIEVEorajqAfAZxxOGVLOHDnZ',   // Password MySQL
+    host: 'junction.proxy.rlwy.net',   // Thay bằng host của Railway
+    user: 'root',       // Username MySQL
+    password: 'zpjJkyXxIEVEorajqAfAZxxOGVLOHDnZ',   // Password MySQL
     database: 'railway',    // Tên database
     port: '25046'
 });
