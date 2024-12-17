@@ -2,47 +2,22 @@ var fs = require('fs');
 var url = require('url');
 var http = require('http');
 var WebSocket = require('ws');
-var mysql = require('mysql2');
-
-// Kết nối đến MySQL
-var db = mysql.createConnection({
-    host: 'mysql.railway.internal',   // Thay bằng host của Railway
-    user: 'root',       // Username MySQL
-    password: 'zpjJkyXxIEVEorajqAfAZxxOGVLOHDnZ',   // Password MySQL
-    database: 'railway'    // Tên database
-});
-
-db.connect(function(err) {
-    if (err) throw err;
-    console.log('MySQL connected...');
-});
-
-// Function gửi file HTML
+// function gửi yêu cầu(response) từ phía server hoặc nhận yêu cầu (request) của client gửi lên
 function requestHandler(request, response) {
     fs.readFile('./index.html', function(error, content) {
-        response.writeHead(200, { 'Content-Type': 'text/html' });
+        response.writeHead(200, {
+            'Content-Type': 'text/html'
+        });
         response.end(content);
     });
 }
-
-// Tạo HTTP server
+// create http server
 var server = http.createServer(requestHandler);
-var ws = new WebSocket.Server({ server });
+var ws = new WebSocket.Server({
+    server
+});
 var clients = [];
 
-// Lưu trạng thái vào database
-function saveToDatabase(status) {
-    var query = 'INSERT INTO status_log (time, status) VALUES (NOW(), ?)';
-    db.query(query, [status], function(err, result) {
-        if (err) {
-            console.error('Error inserting into database:', err);
-        } else {
-            console.log('Saved to database, id:', result.insertId);
-        }
-    });
-}
-
-// Broadcast dữ liệu đến tất cả client
 function broadcast(socket, data) {
     console.log(clients.length);
     for (var i = 0; i < clients.length; i++) {
@@ -51,7 +26,6 @@ function broadcast(socket, data) {
         }
     }
 }
-
 ws.on('connection', function(socket, req) {
     clients.push(socket);
     socket.on('message', function(message) {
