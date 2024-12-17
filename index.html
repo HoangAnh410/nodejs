@@ -13,9 +13,13 @@
 		<div> DONG MO CUA 
 			<input type="checkbox" id="door" name="door" disabled="true" />
 		</div>
+		<div> Che do tu dong 
+			<input type="checkbox" id="auto" name="auto" />
+		</div>
 		<script type="text/javascript">
             var checkbox = document.getElementById('btn');
             var door = document.getElementById('door');
+	    var auto = document.getElementById('auto');
             var url = window.location.host; 
 
 
@@ -40,6 +44,10 @@
                     door.checked = false;
                 } else if (evt.data == 'door_ON') {
                     door.checked = true;
+		} else if (evt.data == 'AUTO_ON') {
+                    auto.checked = true;
+                } else if (evt.data == 'AUTO_OFF') {
+                    auto.checked = false;
                 }
             };
 
@@ -55,6 +63,15 @@
                 }
                 ws.send(door_status); // Gửi trạng thái door tới server
             };
+
+	    auto.onchange = function() { // Thực hiện thay đổi bật/tắt door
+                var auto_status = 'auto_OFF';
+                if (auto.checked) {
+                    auto_status = 'auto_ON';
+                }
+                ws.send(auto_status); // Gửi trạng thái door tới server
+            };
+	
         </script>
 	</body>
 </html>
