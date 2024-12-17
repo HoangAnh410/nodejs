@@ -4,7 +4,7 @@ var http = require('http');
 var WebSocket = require('ws');
 var mysql = require('mysql2');
 
-// Kết nối đến MySQL
+// Kết nối đến MySQL trên Railway
 var db = mysql.createConnection({
     host: 'junction.proxy.rlwy.net', // Hostname từ Railway
     port: 25046,                     // Port từ Railway
@@ -14,56 +14,69 @@ var db = mysql.createConnection({
 });
 
 db.connect(function(err) {
-    if (err) throw err;
-    console.log('MySQL connected...');
+    if (err) {
+        console.error('MySQL connection failed:', err.message);
+        return;
+    }
+    console.log('Connected to MySQL on Railway');
 });
 
-// Function gửi file HTML
+// Tạo HTTP server
 function requestHandler(request, response) {
     fs.readFile('./index.html', function(error, content) {
-        response.writeHead(200, { 'Content-Type': 'text/html' });
-        response.end(content);
+        if (error) {
+            response.writeHead(500);
+            response.end('Error loading index.html');
+        } else {
+            response.writeHead(200, { 'Content-Type': 'text/html' });
+            response.end(content);
+        }
     });
 }
 
-// Tạo HTTP server
 var server = http.createServer(requestHandler);
 var ws = new WebSocket.Server({ server });
 var clients = [];
 
-// Lưu trạng thái vào database
+// Lưu trạng thái vào MySQL
 function saveToDatabase(status) {
     var query = 'INSERT INTO status_log (time, status) VALUES (NOW(), ?)';
     db.query(query, [status], function(err, result) {
         if (err) {
-            console.error('Error inserting into database:', err);
+            console.error('Error saving to database:', err.message);
         } else {
-            console.log('Saved to database, id:', result.insertId);
+            console.log('Data saved, Insert ID:', result.insertId);
         }
     });
 }
 
 // Broadcast dữ liệu đến tất cả client
 function broadcast(socket, data) {
-    console.log(clients.length);
-    for (var i = 0; i < clients.length; i++) {
-        if (clients[i] != socket) {
-            clients[i].send(data);
+    console.log('Broadcasting to clients:', clients.length);
+    clients.forEach(client => {
+        if (client !== socket && client.readyState === WebSocket.OPEN) {
+            client.send(data);
         }
-    }
+    });
 }
 
-ws.on('connection', function(socket, req) {
+ws.on('connection', function(socket) {
     clients.push(socket);
+    console.log('New client connected');
+
     socket.on('message', function(message) {
-        console.log('received: %s', message);
-        broadcast(socket, message);
+        console.log('Received:', message);
+        saveToDatabase(message); // Lưu trạng thái vào database
+        broadcast(socket, message); // Gửi đến các client khác
     });
+
     socket.on('close', function() {
-        var index = clients.indexOf(socket);
-        clients.splice(index, 1);
-        console.log('disconnected');
+        clients = clients.filter(client => client !== socket);
+        console.log('Client disconnected');
     });
 });
-server.listen(3000);
-console.log('Server listening on port 3000');
+
+// Lắng nghe trên cổng 3000
+server.listen(3000, () => {
+    console.log('Server listening on http://localhost:3000');
+});
