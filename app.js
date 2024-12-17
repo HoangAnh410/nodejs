@@ -37,7 +37,7 @@ function saveToDatabase(status) {
         if (err) {
             console.error('Error inserting into database:', err);
         } else {
-            console.log('Saved to database, ID:', result.insertId);
+            console.log('Saved to database, id:', result.insertId);
         }
     });
 }
