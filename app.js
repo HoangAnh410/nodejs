@@ -37,14 +37,14 @@ function saveToDatabase(status) {
         if (err) {
             console.error('Error inserting into database:', err);
         } else {
-            console.log('Saved to database, ID:', result.insertId);
+            console.log('Saved to database, id:', result.insertId);
         }
     });
 }
 
 // Broadcast dữ liệu đến tất cả client
 function broadcast(socket, data) {
-    console.log('Number of clients:', clients.length);
+    console.log(clients.length);
     for (var i = 0; i < clients.length; i++) {
         if (clients[i] != socket) {
             clients[i].send(data);
@@ -54,23 +54,15 @@ function broadcast(socket, data) {
 
 ws.on('connection', function(socket, req) {
     clients.push(socket);
-    console.log('Client connected');
-
-    // Nhận tin nhắn từ client
     socket.on('message', function(message) {
-        console.log('Received:', message);
-        saveToDatabase(message); // Lưu trạng thái vào MySQL
+        console.log('received: %s', message);
         broadcast(socket, message);
     });
-
-    // Xử lý khi client ngắt kết nối
     socket.on('close', function() {
         var index = clients.indexOf(socket);
         clients.splice(index, 1);
-        console.log('Client disconnected');
+        console.log('disconnected');
     });
 });
-
-server.listen(3000, () => {
-    console.log('Server listening on port 3000');
-});
+server.listen(3000);
+console.log('Server listening on port 3000');
