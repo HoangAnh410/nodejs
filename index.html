@@ -1,77 +1,89 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
-		<title>DIEU KHIEN CUA</title>
+		<title>DIEU KHIEN CUA</title> <!-- Tiêu đề của trang web -->
 	</head>
 	<body>
+		<!-- Hiển thị trạng thái kết nối WebSocket -->
 		<div> Trang thai ket noi
-			<span id="status" style="font-weight: bold;"> disconnected </span>
+			<span id="status" style="font-weight: bold;"> disconnected </span> <!-- Ban đầu hiển thị là "disconnected" -->
 		</div>
+		
+		<!-- Checkbox hiển thị trạng thái của một nút điều khiển -->
 		<div> Trang thai cua  
-			<input type="checkbox" id="btn" name="btn" />
+			<input type="checkbox" id="btn" name="btn" /> <!-- Checkbox không bị khóa -->
 		</div>
+		
+		<!-- Checkbox hiển thị trạng thái cửa, bị khóa khi chưa kết nối WebSocket -->
 		<div> DONG MO CUA 
-			<input type="checkbox" id="door" name="door" disabled="true" />
+			<input type="checkbox" id="door" name="door" disabled="true" /> <!-- Ban đầu bị vô hiệu hóa -->
 		</div>
+		
+		<!-- Checkbox để bật/tắt chế độ tự động -->
 		<div> Che do tu dong 
-			<input type="checkbox" id="auto" name="auto" />
+			<input type="checkbox" id="auto" name="auto" /> <!-- Checkbox điều khiển chế độ tự động -->
 		</div>
+
 		<script type="text/javascript">
-            var checkbox = document.getElementById('btn');
-            var door = document.getElementById('door');
-	    var auto = document.getElementById('auto');
-            var url = window.location.host; 
+            var checkbox = document.getElementById('btn'); // Lấy tham chiếu đến checkbox "btn"
+            var door = document.getElementById('door');   // Lấy tham chiếu đến checkbox "door"
+	        var auto = document.getElementById('auto');   // Lấy tham chiếu đến checkbox "auto"
+            var url = window.location.host;              // Lấy URL của trang web
 
-
+            // Khởi tạo WebSocket kết nối tới server
             var ws = new WebSocket('wss://' + url + '/'); 
             console.log('connecting...');
 
+            // Xử lý khi WebSocket mở kết nối
             ws.onopen = function() 
             {
-                document.getElementById('status').innerHTML = 'Connected';
-                door.disabled = false; 
+                document.getElementById('status').innerHTML = 'Connected'; // Cập nhật trạng thái thành "Connected"
+                door.disabled = false; // Kích hoạt checkbox "door"
                 console.log('connected...');
             };
 
+            // Xử lý khi nhận dữ liệu từ server qua WebSocket
             ws.onmessage = function(evt)
             {
-                console.log(evt.data);
-                if (evt.data == 'BTN_PRESSED') {
-                    checkbox.checked = true;
-                } else if (evt.data == 'BTN_RELEASE') {
-                    checkbox.checked = false;
-                } else if (evt.data == 'door_OFF') {
-                    door.checked = false;
-                } else if (evt.data == 'door_ON') {
-                    door.checked = true;
-		} else if (evt.data == 'AUTO_ON') {
-                    auto.checked = true;
-                } else if (evt.data == 'AUTO_OFF') {
-                    auto.checked = false;
+                console.log(evt.data); // Ghi log dữ liệu nhận được
+                if (evt.data == 'BTN_PRESSED') { // Nếu server gửi tín hiệu nút bấm
+                    checkbox.checked = true; // Đánh dấu checkbox "btn"
+                } else if (evt.data == 'BTN_RELEASE') { // Nếu server gửi tín hiệu nhả nút
+                    checkbox.checked = false; // Bỏ đánh dấu checkbox "btn"
+                } else if (evt.data == 'door_OFF') { // Nếu server gửi tín hiệu tắt cửa
+                    door.checked = false; // Bỏ đánh dấu checkbox "door"
+                } else if (evt.data == 'door_ON') { // Nếu server gửi tín hiệu mở cửa
+                    door.checked = true; // Đánh dấu checkbox "door"
+		        } else if (evt.data == 'AUTO_ON') { // Nếu server gửi tín hiệu bật chế độ tự động
+                    auto.checked = true; // Đánh dấu checkbox "auto"
+                } else if (evt.data == 'AUTO_OFF') { // Nếu server gửi tín hiệu tắt chế độ tự động
+                    auto.checked = false; // Bỏ đánh dấu checkbox "auto"
                 }
             };
 
-            ws.onclose = function() { // Hàm này sẽ được thực hiện khi đóng websocket
-                door.disabled = true;
-                document.getElementById('status').innerHTML = 'Disconnected';
+            // Xử lý khi WebSocket đóng kết nối
+            ws.onclose = function() { 
+                door.disabled = true; // Khóa checkbox "door"
+                document.getElementById('status').innerHTML = 'Disconnected'; // Cập nhật trạng thái thành "Disconnected"
             };
 
-            door.onchange = function() { // Thực hiện thay đổi bật/tắt door
-                var door_status = 'door_OFF';
+            // Xử lý khi thay đổi trạng thái checkbox "door"
+            door.onchange = function() { 
+                var door_status = 'door_OFF'; // Mặc định trạng thái là tắt
                 if (door.checked) {
-                    door_status = 'door_ON';
+                    door_status = 'door_ON'; // Nếu checkbox được đánh dấu, trạng thái là bật
                 }
-                ws.send(door_status); // Gửi trạng thái door tới server
+                ws.send(door_status); // Gửi trạng thái cửa đến server
             };
 
-	    auto.onchange = function() { // Thực hiện thay đổi bật/tắt door
-                var auto_status = 'auto_OFF';
+	        // Xử lý khi thay đổi trạng thái checkbox "auto"
+	        auto.onchange = function() { 
+                var auto_status = 'auto_OFF'; // Mặc định trạng thái là tắt
                 if (auto.checked) {
-                    auto_status = 'auto_ON';
+                    auto_status = 'auto_ON'; // Nếu checkbox được đánh dấu, trạng thái là bật
                 }
-                ws.send(auto_status); // Gửi trạng thái door tới server
+                ws.send(auto_status); // Gửi trạng thái chế độ tự động đến server
             };
-	
         </script>
 	</body>
 </html>
