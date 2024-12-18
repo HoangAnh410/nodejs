@@ -44,7 +44,7 @@ const clients = []; // Danh sách client kết nối
 
 // Hàm lưu trạng thái vào bảng MySQL
 function saveToDatabase(status) {
-    const query = 'INSERT INTO your_table_name (status, time) VALUES (?, NOW())';
+    const query = 'INSERT INTO hehe (status, time) VALUES (?, NOW())';
     db.query(query, [status], (err, result) => {
         if (err) {
             console.error('Lỗi lưu dữ liệu vào MySQL:', err.message);
